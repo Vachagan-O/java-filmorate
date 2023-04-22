@@ -8,11 +8,11 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Slf4j
 @Data
+@Builder
 public class User {
 
     @EqualsAndHashCode.Exclude
@@ -31,15 +31,6 @@ public class User {
 
     private String name;
     protected Set<Integer> friends;
-
-    public User(int id, String email, String login, LocalDate birthday, String name) {
-        this.id = id;
-        this.email = email;
-        this.login = login;
-        this.birthday = birthday;
-        this.name = getNameOrLogin(name, login);
-        this.friends = new HashSet<>();
-    }
 
     private String getNameOrLogin(String name, String login) {
         if (name == null || name.isBlank()) {

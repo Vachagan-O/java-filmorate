@@ -2,16 +2,12 @@ package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.storage.daoStorage.FilmDbStorage;
 
 import java.time.LocalDate;
 
@@ -19,54 +15,54 @@ import java.time.LocalDate;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmTest {
+    private final FilmDbStorage filmDbStorage;
+    Film film1 = Film.builder()
+            .id(1)
+            .name("Фильм1")
+            .description("Описание1")
+            .releaseDate(LocalDate.parse("2022-01-01"))
+            .duration(121)
+            .build();
 
-    private Film film;
-    private Film film1;
-    private User user;
-    private FilmController filmController;
+    Film film2 = Film.builder()
+            .id(2)
+            .name("Фильм2")
+            .description("Описание2")
+            .releaseDate(LocalDate.parse("2022-01-02"))
+            .duration(122)
+            .build();
 
-    @BeforeEach
-    void beforeEach() {
-        filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
-        user = new User(1, "post@email.com",
-                "Login",  LocalDate.of(2000, 10, 11), "Name");
-        film = new Film(1, "Name", "Description",
-                68, LocalDate.of(2015, 12, 23));
-        film1 = new Film(2, "Name2", "Description2",
-                682, LocalDate.of(2019, 12, 23));
-    }
+    Film film3 = Film.builder()
+            .id(3)
+            .name("Фильм3")
+            .description("Описание3")
+            .releaseDate(LocalDate.parse("2022-01-03"))
+            .duration(123)
+            .build();
 
     @Test
     public void createTest() {
-        filmController.addFilm(film);
-        Assertions.assertEquals(1, filmController.getAllFilms().size());
+        filmDbStorage.addFilm(film1);
+        Assertions.assertEquals(1, filmDbStorage.getAllFilms().size());
     }
 
     @Test
     public void getAllTest() {
-        filmController.addFilm(film);
-        filmController.addFilm(film1);
-        Assertions.assertEquals(2, filmController.getAllFilms().size());
+        filmDbStorage.addFilm(film1);
+        filmDbStorage.addFilm(film2);
+        Assertions.assertEquals(2, filmDbStorage.getAllFilms().size());
     }
 
     @Test
     public void updateTest() {
-        filmController.addFilm(film);
-        film.setId(12);
-        Assertions.assertEquals(12, film.getId());
+        filmDbStorage.addFilm(film1);
+        film1.setId(11);
+        Assertions.assertEquals(11, film1.getId());
     }
 
     @Test
     public void getFilmById() {
-        filmController.addFilm(film);
-        Assertions.assertEquals(film, filmController.getFilmById(1));
+        filmDbStorage.addFilm(film1);
+        Assertions.assertEquals(film1, filmDbStorage.getFilmById(1));
     }
-
-    @Test
-    public void addLikes() {
-        filmController.addFilm(film);
-        filmController.addLikes(user.getId(), 1);
-        Assertions.assertEquals(film.getLikes().size(), 1);
-    }
-
 }

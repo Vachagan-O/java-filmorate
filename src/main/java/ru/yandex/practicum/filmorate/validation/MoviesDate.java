@@ -19,4 +19,3 @@ public @interface MoviesDate {
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
-
