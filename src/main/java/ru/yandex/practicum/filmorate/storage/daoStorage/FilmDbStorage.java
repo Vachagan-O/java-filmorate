@@ -39,7 +39,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         return getFilmById(film.getId());
     }
-    // возможно есть ошибка
+
     @Override
     public Film updateFilm(Film film) {
         final String sql = "UPDATE films SET film_id = ?, film_name = ?, description = ?, duration = ?,"
