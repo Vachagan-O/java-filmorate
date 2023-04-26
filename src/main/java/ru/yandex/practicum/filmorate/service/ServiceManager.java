@@ -11,7 +11,7 @@ public class ServiceManager {
     private final FilmService filmService;
 
     @Autowired
-    public ServiceManager(UserService userService,FilmService filmService){
+    public ServiceManager(UserService userService, FilmService filmService) {
         this.userService = userService;
         this.filmService = filmService;
     }
