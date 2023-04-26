@@ -1,15 +1,19 @@
-INSERT INTO PUBLIC.genres (genre_name) VALUES ('Комедия');
-INSERT INTO PUBLIC.genres (genre_name) VALUES ('Драма');
-INSERT INTO PUBLIC.genres (genre_name) VALUES ('Мультфильм');
-INSERT INTO PUBLIC.genres (genre_name) VALUES ('Триллер');
-INSERT INTO PUBLIC.genres (genre_name) VALUES ('Документальный');
-INSERT INTO PUBLIC.genres (genre_name) VALUES ('Боевик');
+DELETE FROM genre;
+INSERT INTO genre (name)
+VALUES
+('Комедия'),
+('Драма'),
+('Мультфильм'),
+('Триллер'),
+('Документальный'),
+('Боевик');
 
-INSERT INTO PUBLIC.ratings (mpa_name) VALUES ('G');
-INSERT INTO PUBLIC.ratings (mpa_name) VALUES ('PG');
-INSERT INTO PUBLIC.ratings (mpa_name) VALUES ('PG-13');
-INSERT INTO PUBLIC.ratings (mpa_name) VALUES ('R');
-INSERT INTO PUBLIC.ratings (mpa_name) VALUES ('NC-17');
-
-INSERT INTO films (film_name, description, duration, mpa_id) VALUES ('name', 'des', 100, 1);
+DELETE FROM mpa;
+INSERT INTO mpa (name, description)
+VALUES
+('G', 'У фильма нет возрастных ограничений'),
+('PG', 'детям рекомендуется смотреть фильм с родителями'),
+('PG-13','детям до 13 лет просмотр не желателен'),
+('R','лицам до 17 лет просматривать фильм можно только в присутствии взрослого'),
+('NC-17','лицам до 18 лет просмотр запрещён');
 

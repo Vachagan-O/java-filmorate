@@ -1,32 +1,37 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.MpaService;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.ServiceManager;
 
-import java.util.Collection;
+import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/mpa")
+@Slf4j
 public class MpaController {
-    private final MpaService mpaService;
+    private final FilmService filmService;
 
-    public MpaController(MpaService mpaService) {
-        this.mpaService = mpaService;
+    @Autowired
+    public MpaController(ServiceManager serviceManager) {
+        this.filmService = serviceManager.getFilmService();
     }
 
     @GetMapping
-    public Collection<Mpa> getAllMpa() {
-        return mpaService.getAllMpa();
+    public List<Mpa> getRatings() {
+        log.info("Получение видов рейтинга");
+        return filmService.getRatings();
     }
 
-    @GetMapping("/{id}")
-    public Mpa getMpaById(@PathVariable Integer id) {
-        return mpaService.getMpaById(id);
+    @GetMapping("{id}")
+    public Mpa getRatingById(@PathVariable Integer id) {
+        log.info("Получение рейтинга с id {}", id);
+        return filmService.getRatingById(id);
     }
 }
