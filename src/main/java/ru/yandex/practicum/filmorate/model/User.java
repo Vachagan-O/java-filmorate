@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Past;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Data
@@ -16,6 +13,7 @@ import java.time.LocalDate;
 public class User {
     private Integer id;
     @NotBlank
+    @Pattern(regexp = "\\S+", message = "Строка не может содержать пробелов")
     private String login;
     private String name;
     @NotNull
