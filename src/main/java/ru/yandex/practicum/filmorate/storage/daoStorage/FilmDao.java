@@ -30,12 +30,12 @@ public class FilmDao implements FilmDaoStorage {
 
     @Override
     public Film addObject(Film film) {
-        String INSERT_MESSAGE_SQL = "INSERT INTO film VALUES(?,?,?,?,?,?)";
+        String insertMessageSql = "INSERT INTO film VALUES(?,?,?,?,?,?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         film.setId(getTableId() + 1);
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
-                    .prepareStatement(INSERT_MESSAGE_SQL, new String[]{"id"});
+                    .prepareStatement(insertMessageSql, new String[]{"id"});
             ps.setInt(1, film.getId());
             ps.setString(2, film.getName());
             ps.setString(3, film.getDescription());
