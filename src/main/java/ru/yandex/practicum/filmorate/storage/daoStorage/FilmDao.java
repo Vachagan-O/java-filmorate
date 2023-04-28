@@ -53,7 +53,9 @@ public class FilmDao implements FilmDaoStorage {
 
     @Override
     public Film getObjectById(int id) {
-        return jdbcTemplate.query("SELECT * FROM film WHERE id = ? ", (rs, rowNum) -> makeFilm(rs), id).stream()
+        return jdbcTemplate.query("SELECT f.*, m.ID mpa_id, m.NAME mpa_name, m.DESCRIPTION mpa_desc " +
+                                "FROM film f LEFT JOIN MPA m ON f.rating_id = m.id WHERE f.id = ? ",
+                        (rs, rowNum) -> makeFilm(rs), id).stream()
                 .findAny().orElseThrow(() -> new NotFoundException("Фильм с указанным id " + id + " не найден"));
     }
 
@@ -64,7 +66,8 @@ public class FilmDao implements FilmDaoStorage {
 
     @Override
     public List<Film> getObjects() {
-        return jdbcTemplate.query("SELECT * FROM film", (rs, rowNum) -> makeFilm(rs));
+        return jdbcTemplate.query("SELECT f.*, m.ID mpa_id, m.NAME mpa_name, m.DESCRIPTION mpa_desc " +
+                "FROM film f LEFT JOIN MPA m ON f.rating_id = m.id", (rs, rowNum) -> makeFilm(rs));
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
@@ -73,11 +76,12 @@ public class FilmDao implements FilmDaoStorage {
         String description = rs.getString("description");
         LocalDate realiseDate = rs.getDate("realise_date").toLocalDate();
         int duration = rs.getInt("duration");
-        int ratingId = rs.getInt("rating_id");
+        Integer idMpa = rs.getInt("mpa_id");
+        String nameMpa = rs.getString("mpa_name");
+        String descriptionMpa = rs.getString("mpa_desc");
 
-        Film film = new Film(id, name, description, realiseDate, duration, null, null);
+        Film film = new Film(id, name, description, realiseDate, duration, null, new Mpa(idMpa, nameMpa, descriptionMpa));
         film.setGenres(getFilmGenres(id));
-        film.setMpa(getRatingById(ratingId));
 
         return film;
     }
@@ -94,7 +98,8 @@ public class FilmDao implements FilmDaoStorage {
 
     @Override
     public List<Film> mostPopularFilm(int count) {
-        List<Film> popular = jdbcTemplate.query("SELECT * FROM film WHERE id IN (SELECT film_id AS id FROM likes " +
+        List<Film> popular = jdbcTemplate.query("SELECT f.*, m.ID mpa_id, m.NAME mpa_name, m.DESCRIPTION mpa_desc " +
+                "FROM film f LEFT JOIN MPA m ON f.rating_id = m.id WHERE f.id IN (SELECT film_id AS id FROM likes " +
                 "GROUP BY id ORDER BY COUNT(user_like_id) DESC LIMIT ?)", (rs, rowNum) -> makeFilm(rs), count);
 
         if (popular.isEmpty()) {
