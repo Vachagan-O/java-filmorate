@@ -8,7 +8,9 @@ import ru.yandex.practicum.filmorate.storage.LikeDaoStorage;
 @Component
 @AllArgsConstructor
 public class LikeDao implements LikeDaoStorage {
+
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public void addLike(int userId, int filmId) {
         jdbcTemplate.update("INSERT INTO likes VALUES(?,?)", userId, filmId);
