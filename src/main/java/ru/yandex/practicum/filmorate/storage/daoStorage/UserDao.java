@@ -2,11 +2,15 @@ package ru.yandex.practicum.filmorate.storage.daoStorage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDaoStorage;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -21,14 +25,25 @@ public class UserDao implements UserDaoStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
-    public User addObject(User user) {
-        user.setId(getTableId() + 1);
-        jdbcTemplate.update("INSERT INTO user_data (id, login, name, birthday, email) VALUES(?,?,?,?,?)",
-                user.getId(), user.getLogin(), user.getName(), user.getBirthday().toString(), user.getEmail());
+   @Override
+   public User addObject(User user) {
+       String insertMessageSql = "INSERT INTO user_data (login, name, birthday, email) VALUES(?,?,?,?)";
+               KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        return user;
-    }
+       jdbcTemplate.update(connection -> {
+           PreparedStatement ps = connection
+                   .prepareStatement(insertMessageSql, new String[]{"id"});
+           ps.setString(1, user.getLogin());
+           ps.setString(2, user.getName());
+           ps.setDate(3, Date.valueOf(user.getBirthday()));
+           ps.setString(4, String.valueOf(user.getEmail()));
+
+           return ps;
+       }, keyHolder);
+       user.setId(keyHolder.getKey().intValue());
+
+       return user;
+   }
 
     @Override
     public void updateObject(User user) {

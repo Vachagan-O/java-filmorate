@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS mpa(
 );
 
 CREATE TABLE IF NOT EXISTS film(
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY auto_increment,
         name VARCHAR NOT NULL CHECK (name <> ''),
         description VARCHAR(200) NOT NULL,
         realise_date DATE,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS film_genres(
 );
 
 CREATE TABLE IF NOT EXISTS user_data (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY auto_increment,
         login VARCHAR(40) NOT NULL,
         name varchar(40) NOT NULL,
         birthday DATE NOT NULL,

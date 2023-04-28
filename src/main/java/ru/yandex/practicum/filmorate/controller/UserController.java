@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.ServiceManager;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
@@ -21,9 +20,9 @@ public class UserController {
     private final UserService userService;
 
     @Autowired
-    public UserController(ServiceManager serviceManager, ValidateService validateService) {
+    public UserController(UserService userService, ValidateService validateService) {
         this.validateService = validateService;
-        this.userService = serviceManager.getUserService();
+        this.userService = userService;
     }
 
     @GetMapping("/{userId}")

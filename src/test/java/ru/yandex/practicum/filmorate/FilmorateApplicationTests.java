@@ -56,6 +56,7 @@ class FilmorateApplicationTests {
         userStorage.clearTable();
     }
 
+
     public void doesErrorAppearWhenAddUser() {
         userStorage.addObject(new User(null, "login", "name",
                 LocalDate.of(1946, 8, 20),
