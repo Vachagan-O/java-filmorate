@@ -23,21 +23,12 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public User addUser(User user) throws ValidationException {
-        if (user == null) {
-            log.debug("Передан пустой объект: {}", (Object) null);
-            throw new ValidationException("Передан пустой объект");
-        }
+    public User addUser(User user) {
         return userStorage.addObject(user);
     }
 
-    public void updateUser(User user) throws ValidationException, NotFoundException {
-        if (user == null) {
-            log.debug("Передан пустой объект: {}", (Object) null);
-            throw new ValidationException("Передан пустой объект");
-        } else {
-            userStorage.updateObject(user);
-        }
+    public void updateUser(User user) {
+        userStorage.updateObject(user);
     }
 
     public User getUserById(int id) throws NotFoundException {

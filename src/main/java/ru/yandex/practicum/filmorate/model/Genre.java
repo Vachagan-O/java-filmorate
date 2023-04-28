@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
-public class Genre implements Serializable {
+public class Genre {
     @NotNull
     private Integer id;
     private String name;

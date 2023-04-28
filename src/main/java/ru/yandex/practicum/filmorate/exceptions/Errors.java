@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class Errors {
 
-    @ExceptionHandler({NotFoundException.class, NotFoundException.class})
+    @ExceptionHandler({NotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundHandler(final RuntimeException e) {
         log.debug("Получен статус 404 Not found");

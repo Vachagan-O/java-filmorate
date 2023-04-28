@@ -40,14 +40,14 @@ public class UserController {
     }
 
     @PostMapping
-    public User addUser(@RequestBody @Valid User user) throws ValidationException {
+    public User addUser(@RequestBody @Valid User user) {
         validateService.validateUser(user);
         log.info("Пользователь добавлен: {}", user);
         return userService.addUser(user);
     }
 
     @PutMapping
-    public User updateUser(@RequestBody @Valid User user) throws ValidationException, NotFoundException {
+    public User updateUser(@RequestBody @Valid User user) {
         validateService.validateUser(user);
         userService.updateUser(user);
         log.info("Пользователь обновлен: {}", user);

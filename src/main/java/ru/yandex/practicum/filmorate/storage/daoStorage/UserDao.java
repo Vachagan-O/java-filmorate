@@ -14,7 +14,7 @@ import java.util.List;
 
 @Component
 public class UserDao implements UserDaoStorage {
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public UserDao(JdbcTemplate jdbcTemplate) {

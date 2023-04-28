@@ -1,33 +1,29 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.ServiceManager;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.service.ValidateService;
+import ru.yandex.practicum.filmorate.service.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@AllArgsConstructor
+@Validated
 public class FilmController {
     private final ValidateService validateService;
     private final FilmService filmService;
     private final UserService userService;
-
-    @Autowired
-    public FilmController(ServiceManager serviceManager, ValidateService validateService) {
-        this.validateService = validateService;
-        this.filmService = serviceManager.getFilmService();
-        this.userService = serviceManager.getUserService();
-    }
+    private final LikeService likeService;
 
     @GetMapping("/{filmId}")
     public Film getFilmById(@PathVariable Integer filmId) {
@@ -42,7 +38,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody @Valid Film film) throws ValidationException {
+    public Film addFilm(@RequestBody @Valid Film film)  {
         validateService.validateFilm(film);
         filmService.addFilm(film);
         log.info("Добавлен фильм {}", film);
@@ -50,7 +46,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody @Valid Film film) throws ValidationException, NotFoundException {
+    public Film updateFilm(@RequestBody @Valid Film film) {
         validateService.validateFilm(film);
         filmService.updateFilm(film);
         log.info("Обновлен фильм: {}", film);
@@ -59,19 +55,19 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void putLike(@PathVariable Integer id, @PathVariable Integer userId) throws NotFoundException {
-        filmService.addLike(userId, id);
+        likeService.addLike(userId, id);
         log.info("Пользователь {} поставил лайк фильму {}", userId, id);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void deleteLike(@PathVariable Integer id, @PathVariable Integer userId) throws NotFoundException {
         userService.getUserById(userId);
-        filmService.removeLike(userId, id);
+        likeService.removeLike(userId, id);
         log.info("Пользователь {} убрал лайк у фильма {}", userId, id);
     }
 
     @GetMapping("/popular")
-    public List<Film> getMostPopularFilm(@RequestParam(defaultValue = "10", required = false) Integer count) {
+    public List<Film> getMostPopularFilm(@Positive @RequestParam(defaultValue = "10") Integer count) {
         log.info("Получение {} самых популярных фильмов", count);
         return filmService.mostPopularFilm(count);
     }

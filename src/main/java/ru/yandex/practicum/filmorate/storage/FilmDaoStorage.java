@@ -1,24 +1,17 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
 
-public interface FilmDaoStorage extends MainStorage<Film> {
+public interface FilmDaoStorage {
+    Film addObject(Film object);
 
-    void addLike(int userId, int filmId);
+    void updateObject(Film object);
 
-    void removeLike(int userId, int filmId);
+    Film getObjectById(int id);
+
+    List<Film> getObjects();
 
     List<Film> mostPopularFilm(int count);
-
-    List<Genre> getGenres();
-
-    List<Mpa> getRatings();
-
-    Genre getGenreById(int id);
-
-    Mpa getRatingById(int id);
 }

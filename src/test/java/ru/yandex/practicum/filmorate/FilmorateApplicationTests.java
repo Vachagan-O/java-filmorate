@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.storage.FilmDaoStorage;
-import ru.yandex.practicum.filmorate.storage.UserDaoStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -23,6 +22,9 @@ class FilmorateApplicationTests {
 
     public final UserDaoStorage userStorage;
     public final FilmDaoStorage filmStorage;
+    public final MpaStorage mpaStorage;
+    public final GenreStorage genreStorage;
+    public final LikeDaoStorage likeDaoStorage;
 
     @Test
     public void userDaoTest() {
@@ -148,11 +150,11 @@ class FilmorateApplicationTests {
     }
 
     public void doesErrorAppearWhenAddAddLike() {
-        filmStorage.addLike(1, 1);
+        likeDaoStorage.addLike(1, 1);
     }
 
     public void doesErrorAppearWhenRemoveLike() {
-        filmStorage.removeLike(1, 1);
+        likeDaoStorage.removeLike(1, 1);
     }
 
     public void shouldGetMostPopularFilm() {
@@ -165,19 +167,19 @@ class FilmorateApplicationTests {
     }
 
     public void shouldGetGenres() {
-        Assertions.assertEquals(filmStorage.getGenres().size(), 6);
+        Assertions.assertEquals(genreStorage.getGenres().size(), 6);
     }
 
     public void shouldGetCorrectGenreById() {
-        Assertions.assertEquals(filmStorage.getGenreById(1), new Genre(1, "Комедия"));
+        Assertions.assertEquals(genreStorage.getGenreById(1), new Genre(1, "Комедия"));
     }
 
     public void shouldGetRatings() {
-        Assertions.assertEquals(filmStorage.getRatings().size(), 5);
+        Assertions.assertEquals(mpaStorage.getAllMpa().size(), 5);
     }
 
     public void shouldGetCorrectRatingById() {
-        Assertions.assertEquals(filmStorage.getRatingById(1), new Mpa(1, "G",
+        Assertions.assertEquals(mpaStorage.getMpaById(1), new Mpa(1, "G",
                 "У фильма нет возрастных ограничений"));
     }
 }

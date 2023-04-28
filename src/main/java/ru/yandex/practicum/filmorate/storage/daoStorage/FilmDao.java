@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.storage.daoStorage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,6 +11,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmDaoStorage;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -17,7 +21,7 @@ import java.util.List;
 
 @Component
 public class FilmDao implements FilmDaoStorage {
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public FilmDao(JdbcTemplate jdbcTemplate) {
@@ -26,9 +30,20 @@ public class FilmDao implements FilmDaoStorage {
 
     @Override
     public Film addObject(Film film) {
+        String INSERT_MESSAGE_SQL = "INSERT INTO film VALUES(?,?,?,?,?,?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         film.setId(getTableId() + 1);
-        jdbcTemplate.update("INSERT INTO film VALUES(?,?,?,?,?,?)", film.getId(), film.getName(),
-                film.getDescription(), film.getReleaseDate().toString(), film.getDuration(), film.getMpa().getId());
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection
+                    .prepareStatement(INSERT_MESSAGE_SQL, new String[]{"id"});
+            ps.setInt(1, film.getId());
+            ps.setString(2, film.getName());
+            ps.setString(3, film.getDescription());
+            ps.setDate(4, Date.valueOf(film.getReleaseDate()));
+            ps.setString(5, String.valueOf(film.getDuration()));
+            ps.setInt(6, film.getMpa().getId());
+            return ps;
+        }, keyHolder);
 
         for (Genre genre : film.getGenres()) {
             jdbcTemplate.update("INSERT INTO film_genres VALUES(?,?)", film.getId(), genre.getId());
@@ -87,16 +102,6 @@ public class FilmDao implements FilmDaoStorage {
     }
 
     @Override
-    public void addLike(int userId, int filmId) {
-        jdbcTemplate.update("INSERT INTO likes VALUES(?,?)", userId, filmId);
-    }
-
-    @Override
-    public void removeLike(int userId, int filmId) {
-        jdbcTemplate.update("DELETE FROM likes WHERE user_like_id = ? AND film_id = ?", userId, filmId);
-    }
-
-    @Override
     public List<Film> mostPopularFilm(int count) {
         List<Film> popular = jdbcTemplate.query("SELECT f.*, m.ID mpa_id, m.NAME mpa_name, m.DESCRIPTION mpa_desc " +
                 "FROM film f LEFT JOIN MPA m ON f.rating_id = m.id WHERE f.id IN (SELECT film_id AS id FROM likes " +
@@ -108,21 +113,10 @@ public class FilmDao implements FilmDaoStorage {
         return popular;
     }
 
-    @Override
-    public List<Genre> getGenres() {
-        return jdbcTemplate.query("SELECT * FROM genre ORDER BY id ", (rs, rowNum) -> makeGenre(rs));
-    }
-
     private LinkedHashSet<Genre> getFilmGenres(int id) {
         List<Genre> genres = jdbcTemplate.query("SELECT * FROM genre WHERE id IN (SELECT genre_id AS id FROM " +
                 "film_genres WHERE film_id = ?) ORDER BY id", (rs, rowNum) -> makeGenre(rs), id);
         return new LinkedHashSet<>(genres);
-    }
-
-    @Override
-    public Genre getGenreById(int id) {
-        return jdbcTemplate.query("SELECT * FROM genre WHERE id = ?", (rs, rowNum) -> makeGenre(rs), id).stream()
-                .findAny().orElseThrow(() -> new NotFoundException("Жанр с указанным id " + id + " не найден"));
     }
 
     private Genre makeGenre(ResultSet rs) throws SQLException {
@@ -130,24 +124,5 @@ public class FilmDao implements FilmDaoStorage {
         String name = rs.getString("name");
 
         return new Genre(id, name);
-    }
-
-    @Override
-    public List<Mpa> getRatings() {
-        return jdbcTemplate.query("SELECT * FROM mpa", (rs, rowNum) -> makeRating(rs));
-    }
-
-    @Override
-    public Mpa getRatingById(int id) {
-        return jdbcTemplate.query("SELECT * FROM mpa WHERE id = ?", (rs, rowNum) -> makeRating(rs), id).stream()
-                .findAny().orElseThrow(() -> new NotFoundException("Рейтинг с указанным id " + id + " не найден"));
-    }
-
-    private Mpa makeRating(ResultSet rs) throws SQLException {
-        Integer id = rs.getInt("id");
-        String name = rs.getString("name");
-        String description = rs.getString("description");
-
-        return new Mpa(id, name, description);
     }
 }
