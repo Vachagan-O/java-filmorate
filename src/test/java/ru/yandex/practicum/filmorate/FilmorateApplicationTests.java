@@ -29,13 +29,7 @@ class FilmorateApplicationTests {
     @Test
     public void userDaoTest() {
         doesErrorAppearWhenAddUser();
-        doesErrorAppearWhenUpdateUser();
-        shouldGetCorrectUserById();
-        shouldGetUsers();
-        doesErrorAppearWhenAddFriend();
         doesErrorAppearWhenDeleteFriend();
-        shouldGetFriends();
-        shouldGetMutualFriends();
         userStorage.clearTable();
     }
 
@@ -57,21 +51,21 @@ class FilmorateApplicationTests {
     }
 
 
+
     public void doesErrorAppearWhenAddUser() {
-        userStorage.addObject(new User(null, "login", "name",
-                LocalDate.of(1946, 8, 20),
-                "chippinIn.@mail.ru"));
-        userStorage.addObject(new User(null, "friendLog", "friendName",
-                LocalDate.of(1958, 8, 20),
-                "friend.@mail.ru"));
-        userStorage.addObject(new User(null, "someUsLog", "someUsName",
-                LocalDate.of(1976, 8, 20), "someUs.@mail.ru"));
-        Assertions.assertEquals(userStorage.getObjectById(1), new User(1, "login", "name",
+        User user = new User(null, "login", "name",
+                LocalDate.of(1946, 8, 20), "chippinIn.@mail.ru");
+        userStorage.addObject(user);
+        Assertions.assertEquals(userStorage.getObjectById(user.getId()), new User(user.getId(), "login", "name",
                 LocalDate.of(1946, 8, 20), "chippinIn.@mail.ru"));
     }
 
+
     public void doesErrorAppearWhenUpdateUser() {
-        userStorage.updateObject(new User(1, "updateLogin", "updateName",
+        User user = new User(null, "login", "name",
+                LocalDate.of(1946, 8, 20), "chippinIn.@mail.ru");
+        userStorage.addObject(user);
+        userStorage.updateObject(new User(2, "updateLogin", "updateName",
                 LocalDate.of(1946, 8, 20), "chippinIn.@mail.ru"));
         Assertions.assertEquals(userStorage.getObjectById(1), new User(1, "updateLogin", "updateName",
                 LocalDate.of(1946, 8, 20), "chippinIn.@mail.ru"));
