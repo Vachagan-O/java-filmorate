@@ -1,67 +1,43 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.storage.FilmDaoStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 @Slf4j
+@Getter
 public class FilmService {
-    private final FilmStorage filmStorage;
+    private final FilmDaoStorage storage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
+    public FilmService(FilmDaoStorage storage) {
+        this.storage = storage;
     }
 
-    public Film addFilm(Film film) {
-        return filmStorage.addFilm(film);
+    public void addFilm(Film film) {
+        storage.addObject(film);
     }
 
-    public Film updateFilm(Film film) {
-        return filmStorage.updateFilm(film);
+    public void updateFilm(Film film) {
+        storage.updateObject(film);
     }
 
-    public Collection<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+    public Film getFilmById(int id) throws NotFoundException {
+        return storage.getObjectById(id);
     }
 
-    public Film getFilmById(int filmId) {
-        return filmStorage.getFilmById(filmId);
+    public List<Film> getFilms() {
+        return storage.getObjects();
     }
 
-    // Добавление лайков
-    public Film addLikes(int filmId, int userId) {
-        Film film = getFilmById(filmId);
-        film.getLikes().add(userId);
-        log.debug("Добавление лайков");
-        updateFilm(film);
-        return film;
+    public List<Film> mostPopularFilm(int count) {
+        return storage.mostPopularFilm(count);
     }
-
-    // Удаление лайков
-    public void removeLikes(int filmId, int like) {
-        if (filmId < 0 || like < 0) {
-            throw new NotFoundException("Отрицательное значение");
-        }
-        Film film = getFilmById(filmId);
-        film.deleteLike(like);
-        log.debug("Удаление лайков");
-        updateFilm(film);
-    }
-
-    //Топ популярных фильмов по лайкам
-    public Collection<Film> topFilms(int amount) {
-        return filmStorage.getAllFilms().stream()
-                .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
-                .limit(amount)
-                .collect(Collectors.toList());
-    }
-
 }
