@@ -30,7 +30,8 @@ public class FilmDao implements FilmDaoStorage {
 
     @Override
     public Film addObject(Film film) {
-        String insertMessageSql = "INSERT INTO film (NAME, DESCRIPTION, REALISE_DATE, DURATION, RATING_ID) VALUES(?,?,?,?,?)";
+        String insertMessageSql = "INSERT INTO film (NAME, DESCRIPTION, REALISE_DATE, DURATION, RATING_ID) " +
+                "VALUES(?,?,?,?,?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
@@ -54,7 +55,10 @@ public class FilmDao implements FilmDaoStorage {
     @Override
     public void updateObject(Film film) {
         getObjectById(film.getId());
-        jdbcTemplate.update("UPDATE film SET name = ?, description = ?, realise_date = ?, duration = ?," + " rating_id = ? WHERE id = ?", film.getName(), film.getDescription(), film.getReleaseDate().toString(), film.getDuration(), film.getMpa().getId(), film.getId());
+        jdbcTemplate.update("UPDATE film SET name = ?, description = ?, realise_date = ?, duration = ?,"
+                + " rating_id = ? WHERE id = ?",
+                film.getName(), film.getDescription(), film.getReleaseDate().toString(),
+                film.getDuration(), film.getMpa().getId(), film.getId());
 
         if (film.getGenres() != null) {
             jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", film.getId());
@@ -70,16 +74,22 @@ public class FilmDao implements FilmDaoStorage {
 
     @Override
     public Film getObjectById(int id) {
-        return jdbcTemplate.query("SELECT f.*, m.ID mpa_id, m.NAME mpa_name, m.DESCRIPTION mpa_desc " + "FROM film f LEFT JOIN MPA m ON f.rating_id = m.id WHERE f.id = ? ", (rs, rowNum) -> makeFilm(rs), id).stream().findAny().orElseThrow(() -> new NotFoundException("Фильм с указанным id " + id + " не найден"));
+        return jdbcTemplate.query("SELECT f.*, m.ID mpa_id, m.NAME mpa_name, m.DESCRIPTION mpa_desc "
+                + "FROM film f LEFT JOIN MPA m ON f.rating_id = m.id WHERE f.id = ? ",
+                (rs, rowNum) -> makeFilm(rs), id)
+                .stream().findAny().orElseThrow(() -> new NotFoundException("Фильм с указанным id "
+                        + id + " не найден"));
     }
 
     private Integer getTableId() {
-        return jdbcTemplate.query("SELECT * FROM film ORDER BY id DESC LIMIT 1 ", (rs, rowNum) -> rs.getInt("id")).stream().findAny().orElse(0);
+        return jdbcTemplate.query("SELECT * FROM film ORDER BY id DESC LIMIT 1 ",
+                (rs, rowNum) -> rs.getInt("id")).stream().findAny().orElse(0);
     }
 
     @Override
     public List<Film> getObjects() {
-        return jdbcTemplate.query("SELECT f.*, m.ID mpa_id, m.NAME mpa_name, m.DESCRIPTION mpa_desc " + "FROM film f LEFT JOIN MPA m ON f.rating_id = m.id", (rs, rowNum) -> makeFilm(rs));
+        return jdbcTemplate.query("SELECT f.*, m.ID mpa_id, m.NAME mpa_name, m.DESCRIPTION mpa_desc "
+                + "FROM film f LEFT JOIN MPA m ON f.rating_id = m.id", (rs, rowNum) -> makeFilm(rs));
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
@@ -92,7 +102,8 @@ public class FilmDao implements FilmDaoStorage {
         String nameMpa = rs.getString("mpa_name");
         String descriptionMpa = rs.getString("mpa_desc");
 
-        Film film = new Film(id, name, description, realiseDate, duration, null, new Mpa(idMpa, nameMpa, descriptionMpa));
+        Film film = new Film(id, name, description, realiseDate, duration,
+                null, new Mpa(idMpa, nameMpa, descriptionMpa));
         film.setGenres(getFilmGenres(id));
 
         return film;
@@ -100,7 +111,9 @@ public class FilmDao implements FilmDaoStorage {
 
     @Override
     public List<Film> mostPopularFilm(int count) {
-        List<Film> popular = jdbcTemplate.query("SELECT f.*, m.ID mpa_id, m.NAME mpa_name, m.DESCRIPTION mpa_desc " + "FROM film f LEFT JOIN MPA m ON f.rating_id = m.id WHERE f.id IN (SELECT film_id AS id FROM likes " + "GROUP BY id ORDER BY COUNT(user_like_id) DESC LIMIT ?)", (rs, rowNum) -> makeFilm(rs), count);
+        List<Film> popular = jdbcTemplate.query("SELECT f.*, m.ID mpa_id, m.NAME mpa_name, m.DESCRIPTION mpa_desc "
+                + "FROM film f LEFT JOIN MPA m ON f.rating_id = m.id WHERE f.id IN (SELECT film_id AS id FROM likes "
+                + "GROUP BY id ORDER BY COUNT(user_like_id) DESC LIMIT ?)", (rs, rowNum) -> makeFilm(rs), count);
 
         if (popular.isEmpty()) {
             return getObjects();
@@ -108,8 +121,14 @@ public class FilmDao implements FilmDaoStorage {
         return popular;
     }
 
+    @Override
+    public void clearTable() {
+        jdbcTemplate.update("DELETE FROM film");
+    }
+
     private LinkedHashSet<Genre> getFilmGenres(int id) {
-        List<Genre> genres = jdbcTemplate.query("SELECT * FROM genre WHERE id IN (SELECT genre_id AS id FROM " + "film_genres WHERE film_id = ?) ORDER BY id", (rs, rowNum) -> makeGenre(rs), id);
+        List<Genre> genres = jdbcTemplate.query("SELECT * FROM genre WHERE id IN (SELECT genre_id AS id FROM "
+                + "film_genres WHERE film_id = ?) ORDER BY id", (rs, rowNum) -> makeGenre(rs), id);
         return new LinkedHashSet<>(genres);
     }
 

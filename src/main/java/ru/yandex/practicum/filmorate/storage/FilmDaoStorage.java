@@ -14,4 +14,6 @@ public interface FilmDaoStorage {
     List<Film> getObjects();
 
     List<Film> mostPopularFilm(int count);
+
+    void clearTable();
 }

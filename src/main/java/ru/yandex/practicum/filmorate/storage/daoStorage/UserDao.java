@@ -113,8 +113,9 @@ public class UserDao implements UserDaoStorage {
 
     @Override
     public List<User> getMutualFriends(int id, int friendId) {
-        return jdbcTemplate.query("SELECT * FROM user_data WHERE id IN (SELECT id FROM (SELECT friend_user_id AS id" +
-                " FROM friends WHERE user_id = ?) AS i INNER JOIN (SELECT friend_user_id FROM friends WHERE user_id = ?)" +
+        return jdbcTemplate.query("SELECT * FROM user_data WHERE id IN (SELECT id FROM (SELECT friend_user_id AS id"
+                + " FROM friends WHERE user_id = ?) AS i "
+                + "INNER JOIN (SELECT friend_user_id FROM friends WHERE user_id = ?)" +
                 " AS j ON i.id = j.friend_user_id) ORDER BY id", (rs, rowNum) -> makeUser(rs), id, friendId);
     }
 }
